@@ -119,7 +119,7 @@ public class SqliteProvider : IDatabaseProvider {
 
     public async Task UpdateProjectAsync(Project project) {
         var query = "UPDATE Projects SET Name = @Name, Description = @Description, " +
-            "RepoAddress = @RepoAddress, Commits = @Commits, CreatedAt = @CreatedAt, UpdatedAt = @UpdatedAt, EndedAt = @EndedAt " +
+            "RepoAddress = @RepoAddress, UpdatedAt = @UpdatedAt, EndedAt = @EndedAt " +
             "WHERE Id = @Id";
 
         using (var db = new SqliteConnection(_configuration["ConnectionStrings:SqliteConnectionString"])) {
@@ -127,10 +127,9 @@ public class SqliteProvider : IDatabaseProvider {
             command.Parameters.AddWithValue("@Name", project.Name);
             command.Parameters.AddWithValue("@Description", project.Description);
             command.Parameters.AddWithValue("@RepoAddress", project.RepoAddress);
-            command.Parameters.AddWithValue("@Commits", project.Commits);
-            command.Parameters.AddWithValue("@CreatedAt", project.CreatedAt);
-            command.Parameters.AddWithValue("@UpdatedAt", project.UpdatedAt);
-            command.Parameters.AddWithValue("@EndedAt", project.EndedAt);
+            // command.Parameters.AddWithValue("@Commits", project.Commits);
+            command.Parameters.AddWithValue("@UpdatedAt", project.UpdatedAt.ToString());
+            command.Parameters.AddWithValue("@EndedAt", project.EndedAt == null ? DBNull.Value : project.EndedAt?.ToString());
             command.Parameters.AddWithValue("@Id", project.Id);
 
             db.Open();

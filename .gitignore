@@ -3,6 +3,9 @@ bin/
 obj/
 out/
 
+# SQLite database file
+*.db
+
 # User-specific files
 *.user
 *.suo
