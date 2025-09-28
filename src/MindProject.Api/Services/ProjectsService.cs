@@ -9,7 +9,7 @@ public interface IProjectsService {
     Task<Project> GetProjectByIdAsync(int id);
     Task AddProjectAsync(CreateNewProjectRequest project);
     Task UpdateProjectAsync(UpdateProjectRequest project);
-    Task AddNoteAsync(int projectId, CreateNewNoteRequest note);
+    Task AddNoteAsync(CreateNewNoteRequest note);
     Task UpdateNoteAsync(int noteId, UpdateNoteRequest note);
     Task DeleteNoteAsync(int noteId);
 }
@@ -51,12 +51,12 @@ public class ProjectsService : IProjectsService {
         await _databaseProvider.UpdateProjectAsync(updateProject);
     }
 
-    public async Task AddNoteAsync(int projectId, CreateNewNoteRequest note) {
+    public async Task AddNoteAsync(CreateNewNoteRequest note) {
         var newNote = new Note {
             Content = note.Content
         };
 
-        await _databaseProvider.AddNoteAsync(projectId, newNote);
+        await _databaseProvider.AddNoteAsync(note.ProjectId, newNote);
     }
 
     public async Task UpdateNoteAsync(int noteId, UpdateNoteRequest note) {
