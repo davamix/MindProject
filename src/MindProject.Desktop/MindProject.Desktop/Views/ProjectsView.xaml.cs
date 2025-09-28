@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -24,5 +25,17 @@ public sealed partial class ProjectsView : UserControl {
         InitializeComponent();
 
         this.DataContext = Ioc.Default.GetService<ProjectsViewModel>();
+    }
+
+    private void btnAddNote_PointerEntered(object sender, PointerRoutedEventArgs e) {
+        this.ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Hand);
+    }
+
+    private void btnAddNote_PointerExited(object sender, PointerRoutedEventArgs e) {
+        this.ProtectedCursor = InputSystemCursor.Create(InputSystemCursorShape.Arrow);
+    }
+
+    private void btnAddNote_Click(object sender, RoutedEventArgs e) {
+        noteInputControl.Visibility = Visibility.Visible;
     }
 }

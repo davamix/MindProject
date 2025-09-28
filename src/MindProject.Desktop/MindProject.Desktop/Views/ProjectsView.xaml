@@ -16,7 +16,8 @@
 		</Grid.ColumnDefinitions>
 
 		<!-- Project list -->
-		<ListView x:Name="lsvProjects" Grid.Column="0"
+		<ListView x:Name="lsvProjects"
+				  Grid.Column="0"
 				  ItemsSource="{Binding Projects}"
 				  SelectionMode="None"
 				  IsItemClickEnabled="True">
@@ -29,9 +30,40 @@
 		</ListView>
 
 		<!-- Notes list -->
-		<ListView Grid.Column="1"
-				  ItemsSource="{Binding Notes}">
+		<ListView x:Name="lsvNotes"
+				  Grid.Column="1"
+				  ItemsSource="{Binding Notes}"
+				  SelectionMode="None">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<controls:NoteItem Note="{Binding}"
+									   SaveNote="{Binding ElementName=lsvNotes, Path=DataContext.SaveNoteCommand}"
+									   DeleteNote="{Binding ElementName=lsvNotes, Path=DataContext.DeleteNoteCommand}" />
+				</DataTemplate>
+			</ListView.ItemTemplate>
 		</ListView>
+
+		<Button x:Name="btnAddNote"
+				Grid.Column="1"
+				VerticalAlignment="Bottom"
+				HorizontalAlignment="Right"
+				Style="{StaticResource AccentButtonStyle}"
+				Padding="16"
+				Margin="16"
+				CornerRadius="50"
+				PointerEntered="btnAddNote_PointerEntered"
+				PointerExited="btnAddNote_PointerExited"
+				Click="btnAddNote_Click">
+			<FontIcon Glyph="&#xE70B;"
+					  FontSize="28" />
+		</Button>
+
+		<controls:NoteInput x:Name="noteInputControl"
+							Grid.Column="1"
+							VerticalAlignment="Stretch"
+							HorizontalAlignment="Stretch"
+							Visibility="Collapsed"
+							SaveNote="{Binding SaveNewNoteCommand}" />
 
 	</Grid>
 </UserControl>

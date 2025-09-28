@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl x:Class="MindProject.Desktop.Views.Controls.NoteItem"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:local="using:MindProject.Desktop.Views.Controls"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:ui="using:CommunityToolkit.WinUI.UI.Controls"
+			 mc:Ignorable="d"
+			 x:Name="noteItemControl">
+
+	<Grid Margin="16"
+		  Background="Transparent">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+
+		<Grid Grid.Column="0"
+		VerticalAlignment="Top">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+
+			<Button x:Name="btnEdit"
+					Grid.Column="0"
+					PointerEntered="Button_PointerEntered"
+					PointerExited="Button_PointerExited"
+					Click="btnEdit_Click">
+				<FontIcon Glyph="&#xE70F;" />
+			</Button>
+
+			<Button x:Name="btnSave"
+					Grid.Column="0"
+					PointerEntered="Button_PointerEntered"
+					PointerExited="Button_PointerExited"
+					Click="btnSave_Click"
+					Visibility="Collapsed"
+					Command="{Binding ElementName=noteItemControl, Path=SaveNote}"
+					CommandParameter="{Binding ElementName=noteItemControl, Path=Note}">
+				<FontIcon Glyph="&#xE74E;" />
+			</Button>
+
+			<Button x:Name="btnDelete"
+					Grid.Column="1"
+					PointerEntered="Button_PointerEntered"
+					PointerExited="Button_PointerExited"
+					Command="{Binding ElementName=noteItemControl, Path=DeleteNote}"
+					CommandParameter="{Binding ElementName=noteItemControl, Path=Note}">
+				<FontIcon Glyph="&#xE74D;" />
+			</Button>
+		</Grid>
+
+		<TextBox x:Name="txtNoteContent"
+				 Grid.Column="2"
+				 Text="{Binding ElementName=noteItemControl, Path=Note.Content}"
+				 TextWrapping="Wrap"
+				 AcceptsReturn="True"
+				 Padding="5"
+				 Visibility="Collapsed"/>
+
+		<ui:MarkdownTextBlock x:Name="mdTextBlock"
+							  Grid.Column="2"
+							  Text="{Binding ElementName=noteItemControl, Path=Note.Content}"
+							  TextWrapping="Wrap"
+							  Padding="5"/>
+
+	</Grid>
+</UserControl>

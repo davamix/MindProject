@@ -14,6 +14,8 @@ namespace MindProject.Desktop.ViewModels;
 public partial class ProjectsViewModel : ObservableObject {
     private readonly IMindProjectService _mindProjectService;
 
+    private Project _selectedProject;
+
     public ObservableCollection<Project> Projects { get; set; } = new();
     public ObservableCollection<Note> Notes { get; set; } = new();
 
@@ -34,10 +36,33 @@ public partial class ProjectsViewModel : ObservableObject {
 
     [RelayCommand]
     private async Task LoadProjectDetails(Project project) {
+        _selectedProject = project;
+
         var details = await _mindProjectService.GetProject(project.Id);
 
         foreach(var n in details.Notes) {
             Notes.Add(n);
         }
+    }
+
+    [RelayCommand]
+    private async Task SaveNote(Note note) {
+        Debug.WriteLine($"Saving note {note.Id}");
+    }
+
+    [RelayCommand]
+    private async Task SaveNewNote(string content) {
+        Debug.WriteLine($"Saving new note...{content}");
+    }
+
+    [RelayCommand]
+    private async Task DeleteNote(Note note) {
+        Debug.WriteLine($"Removing note {note.Id}");
+    }
+
+    [RelayCommand]
+    private async Task CreateNote() {
+        if (_selectedProject == null) return;
+
     }
 }
