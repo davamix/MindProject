@@ -8,13 +8,13 @@ namespace MindProject.Api.Data;
 
 public interface IDatabaseProvider {
     Task<List<Project>> GetProjectsAsync();
-    Task<Project> GetProjectAsync(int id);
+    Task<Project> GetProjectAsync(Guid id);
     Task AddProjectAsync(Project project);
     Task UpdateProjectAsync(Project project);
-    Task<Note> GetNoteAsync(int noteId);
-    Task AddNoteAsync(int projectId, Note note);
+    Task<Note> GetNoteAsync(Guid noteId);
+    Task AddNoteAsync(Guid projectId, Note note);
     Task UpdateNoteAsync(Note note);
-    Task DeleteNoteAsync(int noteId);
+    Task DeleteNoteAsync(Guid noteId);
 }
 
 public class SqliteProvider : IDatabaseProvider {
@@ -28,7 +28,7 @@ public class SqliteProvider : IDatabaseProvider {
     private void InitializeDb() {
         var query = """
         CREATE TABLE IF NOT EXISTS Projects (
-            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            Id TEXT PRIMARY KEY,
             Name TEXT NOT NULL,
             Description TEXT,
             RepoAddress TEXT,
@@ -39,12 +39,11 @@ public class SqliteProvider : IDatabaseProvider {
         );
 
         CREATE TABLE IF NOT EXISTS Notes (
-            Id INTEGER PRIMARY KEY AUTOINCREMENT,
-            ProjectId INTEGER NOT NULL,
+            Id TEXT PRIMARY KEY,
+            ProjectId TEXT NOT NULL,
             Content TEXT,
             CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UpdatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (ProjectId) REFERENCES Projects(Id) ON DELETE CASCADE
+            UpdatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
         """;
 
@@ -77,18 +76,18 @@ public class SqliteProvider : IDatabaseProvider {
         return projects;
     }
 
-    public async Task<Project> GetProjectAsync(int id) {
+    public async Task<Project> GetProjectAsync(Guid id) {
         var query = """
         SELECT P.Id, P.Name, P.Description, P.RepoAddress, P.CreatedAt, P.UpdatedAt, P.EndedAt, 
             N.Id, N.Content, N.CreatedAt, N.UpdatedAt
         FROM Projects P
-        LEFT JOIN Notes N ON P.Id = N.ProjectId
-        WHERE P.Id = @Id;
+        LEFT JOIN Notes N ON P.Id LIKE N.ProjectId
+        WHERE P.Id LIKE @Id;
         """;
 
         using (var db = new SqliteConnection(_configuration["ConnectionStrings:SqliteConnectionString"])) {
             var command = new SqliteCommand(query, db);
-            command.Parameters.AddWithValue("@Id", id);
+            command.Parameters.AddWithValue("@Id", id.ToString());
 
             db.Open();
             var reader = await command.ExecuteReaderAsync();
@@ -99,11 +98,12 @@ public class SqliteProvider : IDatabaseProvider {
     }
 
     public async Task AddProjectAsync(Project project) {
-        var query = "INSERT INTO Projects (Name, Description, RepoAddress, CreatedAt, UpdatedAt) " +
-            "VALUES (@Name, @Description, @RepoAddress, @CreatedAt, @UpdatedAt)";
+        var query = "INSERT INTO Projects (Id, Name, Description, RepoAddress, CreatedAt, UpdatedAt) " +
+            "VALUES (@Id, @Name, @Description, @RepoAddress, @CreatedAt, @UpdatedAt)";
 
         using (var db = new SqliteConnection(_configuration["ConnectionStrings:SqliteConnectionString"])) {
             var command = new SqliteCommand(query, db);
+            command.Parameters.AddWithValue("@Id", project.Id.ToString());
             command.Parameters.AddWithValue("@Name", project.Name);
             command.Parameters.AddWithValue("@Description", project.Description);
             command.Parameters.AddWithValue("@RepoAddress", project.RepoAddress);
@@ -120,7 +120,7 @@ public class SqliteProvider : IDatabaseProvider {
     public async Task UpdateProjectAsync(Project project) {
         var query = "UPDATE Projects SET Name = @Name, Description = @Description, " +
             "RepoAddress = @RepoAddress, UpdatedAt = @UpdatedAt, EndedAt = @EndedAt " +
-            "WHERE Id = @Id";
+            "WHERE Id LIKE @Id";
 
         using (var db = new SqliteConnection(_configuration["ConnectionStrings:SqliteConnectionString"])) {
             var command = new SqliteCommand(query, db);
@@ -130,19 +130,19 @@ public class SqliteProvider : IDatabaseProvider {
             // command.Parameters.AddWithValue("@Commits", project.Commits);
             command.Parameters.AddWithValue("@UpdatedAt", project.UpdatedAt.ToString());
             command.Parameters.AddWithValue("@EndedAt", project.EndedAt == null ? DBNull.Value : project.EndedAt?.ToString());
-            command.Parameters.AddWithValue("@Id", project.Id);
+            command.Parameters.AddWithValue("@Id", project.Id.ToString());
 
             db.Open();
             await command.ExecuteNonQueryAsync();
         }
     }
 
-    public async Task<Note> GetNoteAsync(int noteId) {
-        var query = "SELECT Id, Content, CreatedAt, UpdatedAt FROM Notes WHERE Id = @Id";
+    public async Task<Note> GetNoteAsync(Guid noteId) {
+        var query = "SELECT Id, Content, CreatedAt, UpdatedAt FROM Notes WHERE Id LIKE @Id";
 
         using (var db = new SqliteConnection(_configuration["ConnectionStrings:SqliteConnectionString"])) {
             var command = new SqliteCommand(query, db);
-            command.Parameters.AddWithValue("@Id", noteId);
+            command.Parameters.AddWithValue("@Id", noteId.ToString());
 
             db.Open();
             var reader = await command.ExecuteReaderAsync();
@@ -152,42 +152,45 @@ public class SqliteProvider : IDatabaseProvider {
         }
     }
     
-    public async Task AddNoteAsync(int projectId, Note note) {
-        var query = "INSERT INTO Notes (ProjectId, Content, CreatedAt, UpdatedAt) " +
-            "VALUES (@ProjectId, @Content, @CreatedAt, @UpdatedAt)";
+    public async Task AddNoteAsync(Guid projectId, Note note) {
+        var query = "INSERT INTO Notes (Id, ProjectId, Content, CreatedAt, UpdatedAt) " +
+            "VALUES (@Id, @ProjectId, @Content, @CreatedAt, @UpdatedAt)";
 
         using (var db = new SqliteConnection(_configuration["ConnectionStrings:SqliteConnectionString"])) {
-            var command = new SqliteCommand(query, db);
-            command.Parameters.AddWithValue("@ProjectId", projectId);
-            command.Parameters.AddWithValue("@Content", note.Content);
-            command.Parameters.AddWithValue("@CreatedAt", note.CreatedAt);
-            command.Parameters.AddWithValue("@UpdatedAt", note.UpdatedAt);
-
             db.Open();
-            await command.ExecuteNonQueryAsync();
+
+            using (var insertCmd = new SqliteCommand(query, db)) {
+                insertCmd.Parameters.AddWithValue("@Id", note.Id.ToString());
+                insertCmd.Parameters.AddWithValue("@ProjectId", projectId);
+                insertCmd.Parameters.AddWithValue("@Content", note.Content);
+                insertCmd.Parameters.AddWithValue("@CreatedAt", note.CreatedAt);
+                insertCmd.Parameters.AddWithValue("@UpdatedAt", note.UpdatedAt);
+
+                await insertCmd.ExecuteNonQueryAsync();
+            }
         }
     }
 
     public async Task UpdateNoteAsync(Note note) {
-        var query = "UPDATE Notes SET Content = @Content, UpdatedAt = @UpdatedAt WHERE Id = @Id";
+        var query = "UPDATE Notes SET Content = @Content, UpdatedAt = @UpdatedAt WHERE Id LIKE @Id";
 
         using (var db = new SqliteConnection(_configuration["ConnectionStrings:SqliteConnectionString"])) {
             var command = new SqliteCommand(query, db);
             command.Parameters.AddWithValue("@Content", note.Content);
             command.Parameters.AddWithValue("@UpdatedAt", note.UpdatedAt);
-            command.Parameters.AddWithValue("@Id", note.Id);
+            command.Parameters.AddWithValue("@Id", note.Id.ToString());
 
             db.Open();
             await command.ExecuteNonQueryAsync();
         }
     }
     
-    public async Task DeleteNoteAsync(int noteId) {
-        var query = "DELETE FROM Notes WHERE Id = @Id";
+    public async Task DeleteNoteAsync(Guid noteId) {
+        var query = "DELETE FROM Notes WHERE Id LIKE @Id";
 
         using (var db = new SqliteConnection(_configuration["ConnectionStrings:SqliteConnectionString"])) {
             var command = new SqliteCommand(query, db);
-            command.Parameters.AddWithValue("@Id", noteId);
+            command.Parameters.AddWithValue("@Id", noteId.ToString());
 
             db.Open();
             await command.ExecuteNonQueryAsync();

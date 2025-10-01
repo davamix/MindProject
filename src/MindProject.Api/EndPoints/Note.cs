@@ -8,9 +8,27 @@ public static class Note {
     public static void RegisterNoteEndPoints(this IEndpointRouteBuilder routes) {
         var notesRoute = routes.MapGroup("/api/v1/notes");
 
-        notesRoute.MapPost("/", (IProjectsService service, [FromBody] CreateNewNoteRequest note) => service.AddNoteAsync(note));
-        notesRoute.MapPut("/{noteId}", (IProjectsService service, int noteId, [FromBody] UpdateNoteRequest note) => service.UpdateNoteAsync(noteId, note));
-        notesRoute.MapDelete("/{noteId}", (IProjectsService service, int noteId) => service.DeleteNoteAsync(noteId));
+        notesRoute.MapPost("/", async (IProjectsService service, [FromBody] CreateNewNoteRequest note) => {
+            var createdNote = await service.AddNoteAsync(note);
+
+            return Results.Created(string.Empty, createdNote);
+        })
+        .Produces<NoteCreatedResponse>(StatusCodes.Status201Created);
+
+
+        notesRoute.MapPut("/{noteId}", async (IProjectsService service, Guid noteId, [FromBody] UpdateNoteRequest note) => {
+            if (noteId != note.Id) {
+                return Results.BadRequest("Note ID mismatch");
+            }
+
+            var updatedNote = await service.UpdateNoteAsync(note);
+
+            return Results.Ok(updatedNote);
+        })
+        .Produces<NoteUpdatedResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest);
+
+        notesRoute.MapDelete("/{noteId}", (IProjectsService service, Guid noteId) => service.DeleteNoteAsync(noteId));
 
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MindProject.Api.Dtos;
 using MindProject.Api.Services;
@@ -10,17 +11,25 @@ public static class Project {
 
         projectsRoute.MapGet("/", (IProjectsService service) => service.GetAllProjectsAsync());
 
-        projectsRoute.MapGet("/{id}", (IProjectsService service, int id) => service.GetProjectByIdAsync(id));
+        projectsRoute.MapGet("/{id}", (IProjectsService service, Guid id) => service.GetProjectByIdAsync(id));
 
-        projectsRoute.MapPost("/", (IProjectsService service, [FromBody] CreateNewProjectRequest project) => service.AddProjectAsync(project));
+        projectsRoute.MapPost("/", async (IProjectsService service, [FromBody] CreateNewProjectRequest project) => {
+            var createdProject = await service.AddProjectAsync(project);
 
-        projectsRoute.MapPut("/{id}", async (IProjectsService service, int id, [FromBody] UpdateProjectRequest project) => {
+            return Results.Created($"/api/v1/projects/{createdProject.Id}", createdProject);
+        })
+        .Produces<ProjectCreatedResponse>(StatusCodes.Status201Created);
+
+        projectsRoute.MapPut("/{id}", async (IProjectsService service, Guid id, [FromBody] UpdateProjectRequest project) => {
             if (id != project.Id) {
                 return Results.BadRequest("Project ID mismatch");
             }
 
-            await service.UpdateProjectAsync(project);
-            return Results.NoContent();
-        });
+            var updatedProject = await service.UpdateProjectAsync(project);
+
+            return Results.Ok(updatedProject);
+        })
+        .Produces<ProjectUpdatedResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest);
     }
 }

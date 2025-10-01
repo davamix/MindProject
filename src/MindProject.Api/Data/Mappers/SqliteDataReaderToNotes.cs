@@ -7,9 +7,9 @@ public static class SqliteDataReaderToNotes {
     public static IEnumerable<Note> ToNotes(this SqliteDataReader reader) {
         var notes = new List<Note>();
 
-        while(reader.Read()) {
+        while (reader.Read()) {
             var note = new Note {
-                Id = reader.GetInt32(0),
+                Id = reader.GetString(0).ToGuid(),
                 Content = reader.GetString(1),
                 CreatedAt = DateTime.Parse(reader.GetString(2)),
                 UpdatedAt = DateTime.Parse(reader.GetString(3))
@@ -20,4 +20,6 @@ public static class SqliteDataReaderToNotes {
 
         return notes;
     }
+    
+    private static Guid ToGuid(this string value) => Guid.Parse(value);
 }
