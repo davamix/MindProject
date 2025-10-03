@@ -15,9 +15,10 @@ namespace MindProject.Desktop.Services;
 
 public interface IMindProjectService {
     Task<List<Project>> GetProjects();
-    Task<Project> GetProject(int projectId);
-    Task SaveNote(Note note, int projectId);
-    Task DeleteNote(int noteId);
+    Task<Project> GetProject(Guid projectId);
+    Task<Project> SaveProject(Project project);
+    Task<Note> SaveNote(Note note, Guid projectId);
+    Task DeleteNote(Guid noteId);
 }
 
 public class MindProjectService : IMindProjectService {
@@ -38,7 +39,7 @@ public class MindProjectService : IMindProjectService {
         }
     }
 
-    public async Task<Project> GetProject(int id) {
+    public async Task<Project> GetProject(Guid id) {
         using (var client = new HttpClient()) {
             var response = client.GetAsync(new Uri($"http://localhost:8080/api/v1/projects/{id}")).Result;
 
@@ -54,28 +55,61 @@ public class MindProjectService : IMindProjectService {
         }
     }
 
-    public async Task SaveNote(Note note, int projectId) {
-
-        if (note.Id > 0) {
-            UpdateNote(note);
+    public async Task<Project> SaveProject(Project project) {
+        if (project.Id == Guid.Empty) {
+            return await AddProject(project);
         }
 
-        await AddNote(note, projectId);
+        return await UpdateProject(project);
     }
 
-    private async Task UpdateNote(Note note) {
-        var dto = new UpdateNoteDto {
-            NoteId = note.Id,
-            Content = note.Content
+    private async Task<Project> AddProject(Project project) {
+        var dto = new SaveProjectDto {
+            Name = project.Name,
+            Description = project.Description,
+            RepoAddress = project.RepoAddress
         };
 
         using (var client = new HttpClient()) {
-            var response = await client.PutAsJsonAsync(new Uri($"http://localhost:8080/api/v1/notes/{note.Id}"), dto);
+            var response = await client.PostAsJsonAsync(new Uri($"http://localhost:8080/api/v1/projects"), dto);
+
             response.EnsureSuccessStatusCode();
+
+            var createdProject = await response.Content.ReadFromJsonAsync<Project>();
+
+            return createdProject;
         }
     }
 
-    private async Task AddNote(Note note, int projectId) {
+    private async Task<Project> UpdateProject(Project project) {
+        var dto = new UpdateProjectDto {
+            Id = project.Id,
+            Name = project.Name,
+            Description = project.Description,
+            RepoAddress = project.RepoAddress
+        };
+
+        using (var client = new HttpClient()) {
+
+            var response = await client.PutAsJsonAsync(new Uri($"http://localhost:8080/api/v1/projects/{project.Id}"), dto);
+
+            response.EnsureSuccessStatusCode();
+
+            var updatedProject = await response.Content.ReadFromJsonAsync<Project>();
+
+            return updatedProject;
+        }
+    }
+
+    public async Task<Note> SaveNote(Note note, Guid projectId) {
+        if (note.Id == Guid.Empty) {
+            return await AddNote(note, projectId);
+        }
+
+        return await UpdateNote(note);
+    }
+
+    private async Task<Note> AddNote(Note note, Guid projectId) {
         var dto = new SaveNewNoteDto {
             ProjectId = projectId,
             Content = note.Content
@@ -85,10 +119,35 @@ public class MindProjectService : IMindProjectService {
             var response = await client.PostAsJsonAsync(new Uri($"http://localhost:8080/api/v1/notes"), dto);
 
             response.EnsureSuccessStatusCode();
+
+            var createdNote = await response.Content.ReadFromJsonAsync<Note>();
+
+            return createdNote;
         }
     }
 
-    public async Task DeleteNote(int noteId) {
+    private async Task<Note> UpdateNote(Note note) {
+        var dto = new UpdateNoteDto {
+            Id = note.Id,
+            Content = note.Content
+        };
+
+        using (var client = new HttpClient()) {
+
+            var response = await client.PutAsJsonAsync(new Uri($"http://localhost:8080/api/v1/notes/{note.Id}"), dto);
+
+            response.EnsureSuccessStatusCode();
+
+            var updatedNote = await response.Content.ReadFromJsonAsync<Note>();
+
+            return updatedNote;
+
+        }
+    }
+
+    
+
+    public async Task DeleteNote(Guid noteId) {
         using (var client = new HttpClient()) {
             var response = await client.DeleteAsync(new Uri($"http://localhost:8080/api/v1/notes/{noteId}"));
             response.EnsureSuccessStatusCode();

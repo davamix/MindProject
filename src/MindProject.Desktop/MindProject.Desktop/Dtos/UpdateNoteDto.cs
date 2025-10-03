@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 namespace MindProject.Desktop.Dtos;
 
 class UpdateNoteDto {
-    public int NoteId { get; set; }
+    public Guid Id { get; set; }
     public string Content { get; set; }
 }

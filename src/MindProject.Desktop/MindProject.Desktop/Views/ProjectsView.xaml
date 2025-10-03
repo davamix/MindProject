@@ -29,6 +29,20 @@
 			</ListView.ItemTemplate>
 		</ListView>
 
+		<Button x:Name="btnAddProject"
+				Grid.Column="0"
+				VerticalAlignment="Bottom"
+				HorizontalAlignment="Stretch"
+				Style="{StaticResource AccentButtonStyle}"
+				Padding="16"
+				Margin="16"
+				ToolTipService.ToolTip="Add new project"
+				PointerEntered="btn_PointerEntered"
+				PointerExited="btn_PointerExited"
+				Click="btnAddProject_Click">
+			<FontIcon Glyph="&#xE8A5;" />
+		</Button>
+
 		<!-- Notes list -->
 		<ListView x:Name="lsvNotes"
 				  Grid.Column="1"
@@ -51,19 +65,31 @@
 				Padding="16"
 				Margin="16"
 				CornerRadius="50"
-				PointerEntered="btnAddNote_PointerEntered"
-				PointerExited="btnAddNote_PointerExited"
+				PointerEntered="btn_PointerEntered"
+				PointerExited="btn_PointerExited"
 				Click="btnAddNote_Click">
 			<FontIcon Glyph="&#xE70B;"
 					  FontSize="28" />
 		</Button>
 
+		<!-- Note input dialog -->
 		<controls:NoteInput x:Name="noteInputControl"
-							Grid.Column="1"
+							Grid.Column="0"
+							Grid.ColumnSpan="2"
 							VerticalAlignment="Stretch"
 							HorizontalAlignment="Stretch"
 							Visibility="Collapsed"
-							SaveNote="{Binding SaveNewNoteCommand}" />
+							SaveNote="{Binding SaveNoteCommand}"
+							Project="{Binding SelectedProject}" />
+
+		<!-- Project input control -->
+		<controls:ProjectInput x:Name="projectInputControl"
+							   Grid.Column="0"
+							   Grid.ColumnSpan="2"
+							   VerticalAlignment="Stretch"
+							   HorizontalAlignment="Stretch"
+							   Visibility="Collapsed"
+							   SaveProject="{Binding SaveProjectCommand}" />
 
 	</Grid>
 </UserControl>

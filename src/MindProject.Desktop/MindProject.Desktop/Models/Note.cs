@@ -1,9 +1,9 @@
 ﻿using System;
 
 namespace MindProject.Desktop.Models;
-public record Note(
-    int Id,
-    string Content,
-    DateTime CreatedAt,
-    DateTime UpdatedAt
-);
+public class Note {
+    public Guid Id { get; set; }
+    public string Content { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+};

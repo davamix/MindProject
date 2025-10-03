@@ -1,44 +1,40 @@
 ﻿using MindProject.Desktop.Dtos;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MindProject.Desktop.Models.Mappers;
 public static class ProjectModelExtensions {
     public static Project ToProject(this ProjectInfoDto dto) {
-        return new Project(
-            dto.Id,
-            dto.Name,
-            dto.Description,
-            dto.RepoAddress,
-            dto.CreatedAt,
-            dto.UpdatedAt,
-            dto.EndedAt
-        );
+        return new Project() {
+            Id = dto.Id,
+            Name =dto.Name,
+            Description = dto.Description,
+            RepoAddress = dto.RepoAddress,
+            CreatedAt = dto.CreatedAt,
+            UpdatedAt = dto.UpdatedAt,
+            EndedAt = dto.EndedAt
+        };
     }
 
     public static Project ToProjectDetails(this ProjectDetailDto dto) {
-        return new Project(
-            dto.Id,
-            dto.Name,
-            dto.Description,
-            dto.RepoAddress,
-            dto.CreatedAt,
-            dto.UpdatedAt,
-            dto.EndedAt,
-            dto.Notes.Select(n => n.ToNote()).ToList(),
-            dto.Commits
-        );
+        return new Project() {
+            Id = dto.Id,
+            Name = dto.Name,
+            Description = dto.Description,
+            RepoAddress = dto.RepoAddress,
+            CreatedAt = dto.CreatedAt,
+            UpdatedAt = dto.UpdatedAt,
+            EndedAt = dto.EndedAt,
+            Notes = dto.Notes.Select(n => n.ToNote()).ToList(),
+            Commits = dto.Commits
+        };
     }
 
     public static Note ToNote(this NoteDto dto) {
-        return new Note(
-            dto.Id,
-            dto.Content,
-            dto.CreatedAt,
-            dto.UpdatedAt
-        );
+        return new Note() {
+            Id = dto.Id,
+            Content = dto.Content,
+            CreatedAt = dto.CreatedAt,
+            UpdatedAt = dto.UpdatedAt
+        };
     }
 }
