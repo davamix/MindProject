@@ -13,14 +13,14 @@ public static class Project {
 
         projectsRoute.MapGet("/{id}", (IProjectsService service, Guid id) => service.GetProjectByIdAsync(id));
 
-        projectsRoute.MapPost("/", async (IProjectsService service, [FromBody] CreateNewProjectRequest project) => {
+        projectsRoute.MapPost("/", async (IProjectsService service, CreateNewProjectRequest project) => {
             var createdProject = await service.AddProjectAsync(project);
 
             return Results.Created($"/api/v1/projects/{createdProject.Id}", createdProject);
         })
         .Produces<ProjectCreatedResponse>(StatusCodes.Status201Created);
 
-        projectsRoute.MapPut("/{id}", async (IProjectsService service, Guid id, [FromBody] UpdateProjectRequest project) => {
+        projectsRoute.MapPut("/{id}", async (IProjectsService service, Guid id, UpdateProjectRequest project) => {
             if (id != project.Id) {
                 return Results.BadRequest("Project ID mismatch");
             }
