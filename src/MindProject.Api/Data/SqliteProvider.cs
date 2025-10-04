@@ -32,7 +32,6 @@ public class SqliteProvider : IDatabaseProvider {
             Name TEXT NOT NULL,
             Description TEXT,
             RepoAddress TEXT,
-            Commits TEXT,
             CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
             UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
             EndedAt DATETIME
@@ -107,7 +106,6 @@ public class SqliteProvider : IDatabaseProvider {
             command.Parameters.AddWithValue("@Name", project.Name);
             command.Parameters.AddWithValue("@Description", project.Description);
             command.Parameters.AddWithValue("@RepoAddress", project.RepoAddress);
-            // command.Parameters.AddWithValue("@Commits", project.Commits);
             command.Parameters.AddWithValue("@CreatedAt", project.CreatedAt.ToString());
             command.Parameters.AddWithValue("@UpdatedAt", project.UpdatedAt.ToString());
             // command.Parameters.AddWithValue("@EndedAt", project.EndedAt?.ToString());
@@ -127,7 +125,6 @@ public class SqliteProvider : IDatabaseProvider {
             command.Parameters.AddWithValue("@Name", project.Name);
             command.Parameters.AddWithValue("@Description", project.Description);
             command.Parameters.AddWithValue("@RepoAddress", project.RepoAddress);
-            // command.Parameters.AddWithValue("@Commits", project.Commits);
             command.Parameters.AddWithValue("@UpdatedAt", project.UpdatedAt.ToString());
             command.Parameters.AddWithValue("@EndedAt", project.EndedAt == null ? DBNull.Value : project.EndedAt?.ToString());
             command.Parameters.AddWithValue("@Id", project.Id.ToString());

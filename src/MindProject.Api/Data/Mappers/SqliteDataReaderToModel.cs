@@ -16,7 +16,6 @@ public static class SqliteDataReaderToModel {
                     Name = reader.GetString(1),
                     Description = reader.GetString(2),
                     RepoAddress = reader.GetString(3),
-                    // Commits = reader.GetString(4),
                     CreatedAt = DateTime.Parse(reader.GetString(4)),
                     UpdatedAt = DateTime.Parse(reader.GetString(5)),
                     EndedAt = reader.IsDBNull(6) ? null : DateTime.Parse(reader.GetString(6))
