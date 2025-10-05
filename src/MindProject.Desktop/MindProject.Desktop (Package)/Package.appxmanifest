@@ -8,15 +8,15 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="cd83dc42-04bd-44dc-b84d-e58861ddf441"
-    Publisher="CN=davam_p3h1i13"
+    Name="davamix.mindproject"
+    Publisher="CN=Davamix, O=Davamix, C=US"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="cd83dc42-04bd-44dc-b84d-e58861ddf441" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>MindProject.Desktop (Package)</DisplayName>
-    <PublisherDisplayName>davam_p3h1i13</PublisherDisplayName>
+    <DisplayName>MindProject</DisplayName>
+    <PublisherDisplayName>Daniel Valcarce</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 
@@ -39,7 +39,7 @@
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"
         Square44x44Logo="Images\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png" />
+        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png"  Square71x71Logo="Images\SmallTile.png" Square310x310Logo="Images\LargeTile.png"/>
         <uap:SplashScreen Image="Images\SplashScreen.png" />
       </uap:VisualElements>
     </Application>

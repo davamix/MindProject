@@ -42,3 +42,4 @@ packages/
 # OS generated files
 .DS_Store
 Thumbs.db
+/src/MindProject.Desktop/MindProject.Desktop (Package)/MindProject.Desktop (Package).wapproj

@@ -1,0 +1,6 @@
+MainPackage=F:\Development\MindProject\src\MindProject.Desktop\MindProject.Desktop (Package)\bin\x64\Debug\MindProject.Desktop (Package)_1.0.0.0_x64_Debug.msix
+SymbolPackage=F:\Development\MindProject\src\MindProject.Desktop\MindProject.Desktop (Package)\obj\x64\Debug\Symbols\MindProject.Desktop (Package)_1.0.0.0_x64_Debug.appxsym
+ResourcePack=F:\Development\MindProject\src\MindProject.Desktop\MindProject.Desktop (Package)\bin\x64\Debug\MindProject.Desktop (Package)_1.0.0.0_scale-100.msix
+ResourcePack=F:\Development\MindProject\src\MindProject.Desktop\MindProject.Desktop (Package)\bin\x64\Debug\MindProject.Desktop (Package)_1.0.0.0_scale-125.msix
+ResourcePack=F:\Development\MindProject\src\MindProject.Desktop\MindProject.Desktop (Package)\bin\x64\Debug\MindProject.Desktop (Package)_1.0.0.0_scale-150.msix
+ResourcePack=F:\Development\MindProject\src\MindProject.Desktop\MindProject.Desktop (Package)\bin\x64\Debug\MindProject.Desktop (Package)_1.0.0.0_scale-400.msix
