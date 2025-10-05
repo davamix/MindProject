@@ -57,6 +57,8 @@ public sealed partial class NoteItem : UserControl {
         set => SetValue(SaveNoteProperty, value);
     }
 
+    public string UpdatedAtString => $"Last update: {Note?.UpdatedAt.ToString("g") ?? ""}";
+
     public NoteItem() {
         InitializeComponent();
     }
