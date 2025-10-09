@@ -13,7 +13,7 @@ public interface IDatabaseProvider {
     Task UpdateProjectAsync(Project project);
     Task<Note> GetNoteAsync(Guid noteId);
     Task AddNoteAsync(Guid projectId, Note note);
-    Task UpdateNoteAsync(Note note);
+    Task UpdateNoteAsync(Note note, Guid projectId);
     Task DeleteNoteAsync(Guid noteId);
 }
 
@@ -148,37 +148,66 @@ public class SqliteProvider : IDatabaseProvider {
             return notes.FirstOrDefault();
         }
     }
-    
+
     public async Task AddNoteAsync(Guid projectId, Note note) {
         var query = "INSERT INTO Notes (Id, ProjectId, Content, CreatedAt, UpdatedAt) " +
             "VALUES (@Id, @ProjectId, @Content, @CreatedAt, @UpdatedAt)";
 
+        var queryUpdateProject = "UPDATE Projects SET UpdatedAt = @UpdatedAt WHERE Id LIKE @Id";
+
+
         using (var db = new SqliteConnection(_configuration["ConnectionStrings:SqliteConnectionString"])) {
             db.Open();
 
-            using (var insertCmd = new SqliteCommand(query, db)) {
-                insertCmd.Parameters.AddWithValue("@Id", note.Id.ToString());
-                insertCmd.Parameters.AddWithValue("@ProjectId", projectId);
-                insertCmd.Parameters.AddWithValue("@Content", note.Content);
-                insertCmd.Parameters.AddWithValue("@CreatedAt", note.CreatedAt);
-                insertCmd.Parameters.AddWithValue("@UpdatedAt", note.UpdatedAt);
+            using (var transaction = db.BeginTransaction(deferred: true)) {
+                using (var insertCmd = new SqliteCommand(query, db)) {
+                    insertCmd.Parameters.AddWithValue("@Id", note.Id.ToString());
+                    insertCmd.Parameters.AddWithValue("@ProjectId", projectId.ToString());
+                    insertCmd.Parameters.AddWithValue("@Content", note.Content);
+                    insertCmd.Parameters.AddWithValue("@CreatedAt", note.CreatedAt);
+                    insertCmd.Parameters.AddWithValue("@UpdatedAt", note.UpdatedAt);
 
-                await insertCmd.ExecuteNonQueryAsync();
+                    await insertCmd.ExecuteNonQueryAsync();
+                }
+
+                using (var updateCmd = new SqliteCommand(queryUpdateProject, db)) {
+                    updateCmd.Parameters.AddWithValue("@UpdatedAt", note.UpdatedAt);
+                    updateCmd.Parameters.AddWithValue("@Id", projectId.ToString());
+
+                    await updateCmd.ExecuteNonQueryAsync();
+                }
+                
+                transaction.Commit();
             }
         }
     }
 
-    public async Task UpdateNoteAsync(Note note) {
+    public async Task UpdateNoteAsync(Note note, Guid projectId) {
         var query = "UPDATE Notes SET Content = @Content, UpdatedAt = @UpdatedAt WHERE Id LIKE @Id";
+        var queryUpdateProject = "UPDATE Projects SET UpdatedAt = @UpdatedAt WHERE Id LIKE @Id";
+
 
         using (var db = new SqliteConnection(_configuration["ConnectionStrings:SqliteConnectionString"])) {
-            var command = new SqliteCommand(query, db);
-            command.Parameters.AddWithValue("@Content", note.Content);
-            command.Parameters.AddWithValue("@UpdatedAt", note.UpdatedAt);
-            command.Parameters.AddWithValue("@Id", note.Id.ToString());
-
             db.Open();
-            await command.ExecuteNonQueryAsync();
+
+            using (var transaction = db.BeginTransaction(deferred: true)) {
+                using (var updateCmd = new SqliteCommand(query, db)) {
+                    updateCmd.Parameters.AddWithValue("@Content", note.Content);
+                    updateCmd.Parameters.AddWithValue("@UpdatedAt", note.UpdatedAt);
+                    updateCmd.Parameters.AddWithValue("@Id", note.Id.ToString());
+
+                    await updateCmd.ExecuteNonQueryAsync();
+                }
+
+                using (var updateCmd = new SqliteCommand(queryUpdateProject, db)) {
+                    updateCmd.Parameters.AddWithValue("@UpdatedAt", note.UpdatedAt);
+                    updateCmd.Parameters.AddWithValue("@Id", projectId.ToString());
+
+                    await updateCmd.ExecuteNonQueryAsync();
+                }
+
+                transaction.Commit();
+            }
         }
     }
     

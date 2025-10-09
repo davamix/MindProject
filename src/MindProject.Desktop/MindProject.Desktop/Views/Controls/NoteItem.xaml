@@ -70,7 +70,8 @@
 								  Grid.Row="0"
 								  Text="{Binding ElementName=noteItemControl, Path=Note.Content}"
 								  TextWrapping="Wrap"
-								  Padding="5" />
+								  Padding="5"
+								  LinkClicked="mdTextBlock_LinkClicked"/>
 
 			<TextBlock Grid.Row="1"
 					   Text="{Binding ElementName=noteItemControl, Path=UpdatedAtString}"

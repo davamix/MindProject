@@ -15,6 +15,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.System;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -85,5 +86,9 @@ public sealed partial class NoteItem : UserControl {
 
         txtNoteContent.Visibility = Visibility.Collapsed;
         mdTextBlock.Visibility = Visibility.Visible;
+    }
+
+    private async void mdTextBlock_LinkClicked(object sender, CommunityToolkit.WinUI.UI.Controls.LinkClickedEventArgs e) {
+        await Launcher.LaunchUriAsync(new Uri(e.Link));
     }
 }

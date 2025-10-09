@@ -87,12 +87,12 @@ public class ProjectsService : IProjectsService {
 
     public async Task<NoteUpdatedResponse> UpdateNoteAsync(UpdateNoteRequest note) {
         var updateNote = new Note {
-            Id = note.Id,
+            Id = note.NoteId,
             Content = note.Content,
             UpdatedAt = DateTime.UtcNow
         };
 
-        await _databaseProvider.UpdateNoteAsync(updateNote);
+        await _databaseProvider.UpdateNoteAsync(updateNote, note.ProjectId);
 
         return new NoteUpdatedResponse(
             updateNote.Id,
